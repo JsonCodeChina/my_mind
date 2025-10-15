@@ -1,0 +1,82 @@
+{
+  "metadata": {
+    "timestamp": "2025-10-14T10:30:00Z",
+    "date": "2025-10-14",
+    "version": "1.0"
+  },
+  "version": {
+    "current": "v2.0.14",
+    "release_date": "2025-10-11",
+    "is_new": false,
+    "changelog_url": "https://claudelog.com/claude-code-changelog/",
+    "changes": []
+  },
+  "issues": [
+    {
+      "number": 5037,
+      "title": "MCP servers in .claude/.mcp.json not loading properly",
+      "url": "https://github.com/anthropics/claude-code/issues/5037",
+      "state": "open",
+      "comments": 12,
+      "reactions": 11,
+      "heat_score": 61.5,
+      "labels": ["bug", "has repro", "platform:linux", "area:mcp"],
+      "created_at": "2025-08-03T11:02:21Z",
+      "updated_at": "2025-10-14T13:00:23Z"
+    },
+    {
+      "number": 9432,
+      "title": "Auto-compact triggering excessively",
+      "url": "https://github.com/anthropics/claude-code/issues/9432",
+      "state": "open",
+      "comments": 23,
+      "reactions": 15,
+      "heat_score": 88.5,
+      "labels": ["bug", "priority-high"],
+      "created_at": "2025-10-12T08:15:00Z",
+      "updated_at": "2025-10-14T09:30:00Z"
+    }
+  ],
+  "discussions": [
+    {
+      "objectID": "43163011",
+      "title": "Claude 3.7 Sonnet and Claude Code",
+      "url": "https://www.anthropic.com/news/claude-3-7-sonnet",
+      "hn_url": "https://news.ycombinator.com/item?id=43163011",
+      "points": 2127,
+      "comments": 963,
+      "heat_score": 5161.5,
+      "author": "bakugo",
+      "created_at": "2025-02-24T18:28:59Z"
+    },
+    {
+      "objectID": "45336775",
+      "title": "Pairing with Claude Code to rebuild my startup's website",
+      "url": "https://example.com/rebuild-with-claude",
+      "hn_url": "https://news.ycombinator.com/item?id=45336775",
+      "points": 156,
+      "comments": 42,
+      "heat_score": 352.0,
+      "author": "startupfounder",
+      "created_at": "2025-10-07T14:20:00Z"
+    }
+  ],
+  "articles": [
+    {
+      "title": "99.9% AI 驱动开发：全面实施指南",
+      "url": "https://cc.deeptoai.com/docs/zh/best-practices/99-percent-ai-development-comprehensive-guide",
+      "category": "best-practices",
+      "quality_score": 85,
+      "published_at": "2025-10-10",
+      "summary": "系统性介绍如何实现接近完全 AI 驱动的软件开发流程，包含实战案例和最佳实践"
+    },
+    {
+      "title": "Claude Code 用法全面拆解！26 项核心功能 + 实战技巧",
+      "url": "https://cc.deeptoai.com/docs/zh/best-practices/claude-code-comprehensive-guide",
+      "category": "best-practices",
+      "quality_score": 82,
+      "published_at": "2025-10-05",
+      "summary": "深入解析 Claude Code 的 26 个核心功能，从基础命令到高级技巧的完整指南"
+    }
+  ]
+}

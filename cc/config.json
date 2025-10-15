@@ -1,0 +1,95 @@
+{
+  "version": "2.0.0",
+  "paths": {
+    "baseDir": "/Users/shenbo/Desktop/mind/cc",
+    "baseline": "/Users/shenbo/Desktop/mind/cc/baseline.json",
+    "urls": "/Users/shenbo/Desktop/mind/cc/urls.txt",
+    "templates": "/Users/shenbo/Desktop/mind/cc/templates"
+  },
+  "dataSources": {
+    "official": [
+      {
+        "name": "官方文档",
+        "url": "https://docs.claude.com/en/docs/claude-code/overview",
+        "priority": "high",
+        "type": "documentation"
+      },
+      {
+        "name": "更新日志",
+        "url": "https://claudelog.com/claude-code-changelog/",
+        "priority": "high",
+        "type": "changelog"
+      }
+    ],
+    "community": [
+      {
+        "name": "社区文档站",
+        "url": "https://cc.deeptoai.com/docs",
+        "priority": "high",
+        "type": "documentation"
+      },
+      {
+        "name": "社区最佳实践",
+        "url": "https://cc.deeptoai.com/docs/zh/best-practices/claude-code-best-practices",
+        "priority": "high",
+        "type": "tutorial"
+      }
+    ],
+    "discussions": [
+      {
+        "name": "GitHub Issues",
+        "url": "https://github.com/anthropics/claude-code/issues",
+        "searchKeywords": ["Claude Code"],
+        "priority": "high",
+        "lookbackDays": 2
+      },
+      {
+        "name": "Hacker News",
+        "searchKeywords": ["Claude Code", "claude-code"],
+        "priority": "medium",
+        "lookbackDays": 7
+      },
+      {
+        "name": "Reddit",
+        "searchKeywords": ["Claude Code r/ClaudeAI"],
+        "priority": "medium",
+        "lookbackDays": 7
+      }
+    ]
+  },
+  "output": {
+    "generateHTML": true,
+    "generateMarkdown": true,
+    "autoOpenBrowser": true,
+    "layout": "minimal",
+    "externalCSS": true,
+    "includeSubdirectories": false
+  },
+  "features": {
+    "incrementalUpdate": true,
+    "communityAnalysis": true,
+    "versionTracking": true,
+    "articleCaching": true,
+    "articleTimeTracking": true,
+    "skipUnchangedOfficial": true,
+    "errorRetry": true,
+    "maxRetries": 3
+  },
+  "display": {
+    "focusOnChanges": true,
+    "highlightNewArticles": true,
+    "showArticlePublishDate": true,
+    "showOnlyLinks": true,
+    "skipArticleSummaries": true,
+    "skipFeatureDescriptions": true,
+    "skipDetailedAnalysis": true,
+    "maxNewArticles": 10,
+    "maxNewIssues": 10,
+    "maxHotDiscussions": 5
+  },
+  "cache": {
+    "articlesDbPath": "/Users/shenbo/Desktop/mind/cc/cache/articles.json",
+    "versionsDbPath": "/Users/shenbo/Desktop/mind/cc/cache/versions.json",
+    "communityDbPath": "/Users/shenbo/Desktop/mind/cc/cache/community.json"
+  }
+}

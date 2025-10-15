@@ -1,0 +1,191 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Claude Code Daily Data",
+  "description": "Structured data collected from various sources for Claude Code daily news",
+  "type": "object",
+  "properties": {
+    "metadata": {
+      "type": "object",
+      "properties": {
+        "timestamp": {
+          "type": "string",
+          "format": "date-time",
+          "description": "When this data was collected"
+        },
+        "date": {
+          "type": "string",
+          "format": "date",
+          "description": "Date for this report (YYYY-MM-DD)"
+        },
+        "version": {
+          "type": "string",
+          "description": "Data schema version"
+        }
+      },
+      "required": ["timestamp", "date", "version"]
+    },
+    "version": {
+      "type": "object",
+      "properties": {
+        "current": {
+          "type": "string",
+          "description": "Current Claude Code version (e.g., v2.0.14)"
+        },
+        "release_date": {
+          "type": "string",
+          "format": "date",
+          "description": "Release date of current version"
+        },
+        "is_new": {
+          "type": "boolean",
+          "description": "Whether this is a new version since last check"
+        },
+        "changelog_url": {
+          "type": "string",
+          "format": "uri"
+        },
+        "changes": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "List of key changes if is_new is true"
+        }
+      },
+      "required": ["current", "release_date", "is_new"]
+    },
+    "issues": {
+      "type": "array",
+      "description": "GitHub Issues sorted by heat score",
+      "items": {
+        "type": "object",
+        "properties": {
+          "number": {
+            "type": "integer",
+            "description": "Issue number"
+          },
+          "title": {
+            "type": "string"
+          },
+          "url": {
+            "type": "string",
+            "format": "uri"
+          },
+          "state": {
+            "type": "string",
+            "enum": ["open", "closed"]
+          },
+          "comments": {
+            "type": "integer",
+            "description": "Number of comments"
+          },
+          "reactions": {
+            "type": "integer",
+            "description": "Total reactions count"
+          },
+          "heat_score": {
+            "type": "number",
+            "description": "Calculated heat score"
+          },
+          "labels": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "Issue labels (bug, feature, etc.)"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": ["number", "title", "url", "comments", "reactions", "heat_score"]
+      }
+    },
+    "discussions": {
+      "type": "array",
+      "description": "Hacker News discussions sorted by heat score",
+      "items": {
+        "type": "object",
+        "properties": {
+          "objectID": {
+            "type": "string",
+            "description": "HN story ID"
+          },
+          "title": {
+            "type": "string"
+          },
+          "url": {
+            "type": "string",
+            "format": "uri"
+          },
+          "hn_url": {
+            "type": "string",
+            "format": "uri",
+            "description": "Link to HN discussion page"
+          },
+          "points": {
+            "type": "integer",
+            "description": "HN points/score"
+          },
+          "comments": {
+            "type": "integer",
+            "description": "Number of comments"
+          },
+          "heat_score": {
+            "type": "number",
+            "description": "Calculated heat score"
+          },
+          "author": {
+            "type": "string"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": ["objectID", "title", "points", "comments", "heat_score"]
+      }
+    },
+    "articles": {
+      "type": "array",
+      "description": "Community articles sorted by quality score",
+      "items": {
+        "type": "object",
+        "properties": {
+          "title": {
+            "type": "string"
+          },
+          "url": {
+            "type": "string",
+            "format": "uri"
+          },
+          "category": {
+            "type": "string",
+            "enum": ["best-practices", "community-tips", "tools", "advanced-techniques"],
+            "description": "Article category"
+          },
+          "quality_score": {
+            "type": "number",
+            "description": "Calculated quality score (0-100)"
+          },
+          "published_at": {
+            "type": "string",
+            "format": "date",
+            "description": "Publication date if available"
+          },
+          "summary": {
+            "type": "string",
+            "description": "Brief summary or reason for recommendation"
+          }
+        },
+        "required": ["title", "url", "category", "quality_score"]
+      }
+    }
+  },
+  "required": ["metadata", "version", "issues", "discussions", "articles"]
+}

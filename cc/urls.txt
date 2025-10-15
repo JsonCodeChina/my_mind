@@ -1,0 +1,5 @@
+https://cc.deeptoai.com/docs
+
+https://cc.deeptoai.com/docs/zh/best-practices/claude-code-best-practices
+
+https://docs.claude.com/en/docs/claude-code/overview

@@ -1,0 +1,28 @@
+# CC 目录说明
+
+这个目录用于收集和管理 Claude Code 相关的资源和动态。
+
+## 文件说明
+
+### urls.txt
+收集的 Claude Code 相关链接列表，包括：
+- https://cc.deeptoai.com/docs - Claude Code 中文文档、最佳实践和社区技巧
+- https://ctok.ai/ - Claude Code 相关资源
+
+## 自定义命令
+
+### /cc-news
+**位置**: `/Users/shenbo/Desktop/mind/.claude/commands/cc-news.md`
+
+**功能**: 自动访问 urls.txt 中的链接，获取并总结：
+- Claude Code 的最新功能和动态更新
+- 优质的教程文章和最佳实践
+- 社区分享的技巧和工具
+- 值得关注的新资源
+
+**使用方式**: 在 mind 目录的任何位置输入 `/cc-news` 即可。
+
+## 目录用途
+- 集中管理 Claude Code 学习资源
+- 通过自定义命令快速获取最新动态
+- 节约 token，便于上下文理解

@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Claude Code Daily - {{date}}</title>
+    <link rel="stylesheet" href="../styles/minimal.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Claude Code 今日简报</h1>
+            <p class="date">{{date}}</p>
+        </header>
+
+        <!-- 今日要点 -->
+        <section class="highlight">
+            <h2>🎯 今日要点</h2>
+            <ul class="summary-list">
+                <li>{{#hasOfficialUpdate}}🆕 <strong>v{{newVersion}}</strong> 发布{{/hasOfficialUpdate}}{{^hasOfficialUpdate}}📌 官方无更新{{/hasOfficialUpdate}}</li>
+                <li>📚 <strong>{{newArticlesCount}}</strong> 篇新文章</li>
+                <li>💬 <strong>{{newIssuesCount}}</strong> 个新 Issue</li>
+            </ul>
+        </section>
+
+        {{#hasOfficialUpdate}}
+        <!-- 官方更新 -->
+        <section>
+            <h2>🆕 官方更新</h2>
+            <div class="version-box">
+                <strong>v{{newVersion}}</strong> ({{releaseDate}})
+                <ul>
+                    {{#changelogItems}}
+                    <li>{{item}}</li>
+                    {{/changelogItems}}
+                </ul>
+                <a href="{{changelogUrl}}" target="_blank">完整更新日志 →</a>
+            </div>
+        </section>
+        {{/hasOfficialUpdate}}
+
+        {{#hasNewArticles}}
+        <!-- 新文章 -->
+        <section>
+            <h2>📚 新文章 ({{newArticlesCount}})</h2>
+            <ul class="link-list">
+                {{#newArticles}}
+                <li><a href="{{url}}" target="_blank">{{title}}</a> <span class="badge">🆕</span></li>
+                {{/newArticles}}
+            </ul>
+        </section>
+        {{/hasNewArticles}}
+
+        {{#hasUpdatedArticles}}
+        <!-- 文章更新 -->
+        <section>
+            <h2>🔄 文章更新 ({{updatedArticlesCount}})</h2>
+            <ul class="link-list">
+                {{#updatedArticles}}
+                <li><a href="{{url}}" target="_blank">{{title}}</a> <span class="date-small">({{lastModified}})</span></li>
+                {{/updatedArticles}}
+            </ul>
+        </section>
+        {{/hasUpdatedArticles}}
+
+        {{#hasNewIssues}}
+        <!-- 新 Issue -->
+        <section>
+            <h2>🔥 新 Issue ({{newIssuesCount}})</h2>
+            <ul class="link-list">
+                {{#newIssues}}
+                <li><a href="{{url}}" target="_blank">#{{number}} {{title}}</a> <span class="date-small">({{createdAt}})</span></li>
+                {{/newIssues}}
+            </ul>
+        </section>
+        {{/hasNewIssues}}
+
+        {{#hasHotDiscussions}}
+        <!-- 热门讨论 -->
+        <section>
+            <h2>💬 热门讨论</h2>
+            <ul class="link-list">
+                {{#hotDiscussions}}
+                <li><a href="{{url}}" target="_blank">{{title}}</a> <span class="engagement">({{engagement}})</span></li>
+                {{/hotDiscussions}}
+            </ul>
+        </section>
+        {{/hasHotDiscussions}}
+
+        <!-- 统计 -->
+        <section class="stats">
+            <h2>📊 统计</h2>
+            <div class="stat-grid">
+                <div>新文章: <strong>{{newArticlesCount}}</strong></div>
+                <div>更新文章: <strong>{{updatedArticlesCount}}</strong></div>
+                <div>新 Issue: <strong>{{newIssuesCount}}</strong></div>
+                <div>热门讨论: <strong>{{hotDiscussionsCount}}</strong></div>
+            </div>
+        </section>
+
+        <footer>
+            <p>📅 {{generatedAt}} | 🤖 ccnews v2.1</p>
+            <p><a href="https://cc.deeptoai.com/docs" target="_blank">社区文档站</a> | <a href="https://claudelog.com/claude-code-changelog/" target="_blank">更新日志</a></p>
+        </footer>
+    </div>
+</body>
+</html>
