@@ -1,256 +1,261 @@
-# Claude Code 数据采集脚本
+# Scripts 使用指南
 
-自动化采集 Claude Code 相关数据的 Python 脚本。
+这里包含所有辅助脚本，用于数据采集、报告生成和系统维护。
 
-## 功能特性
+## 🚀 快速开始
 
-- ✅ **GitHub Issues**: 自动获取最近的热门 Issues，按热度评分排序
-- ✅ **HN 讨论**: 从 Hacker News 获取相关讨论
-- ✅ **社区文章**: 从 cc.deeptoai.com 获取最新文章
-- ✅ **版本检测**: 自动检测 Claude Code 最新版本
-- ✅ **智能筛选**: 基于热度算法自动过滤低价值内容
-- ✅ **高性能**: 5-10 秒完成数据采集
-- ✅ **错误处理**: 完善的重试和降级机制
-
-## 安装
-
-### 1. 创建虚拟环境
-
+### 一键生成报告
 ```bash
-cd /Users/shenbo/Desktop/mind/cc
-python3 -m venv venv
-source venv/bin/activate
+./quick-report.sh
+```
+自动执行数据采集，提示你运行 AI 分析。
+
+---
+
+## 📜 脚本列表
+
+### 数据采集
+
+**fetch_data_v2.py** - 核心数据采集脚本
+```bash
+# 基本使用
+python fetch_data_v2.py
+
+# 自定义参数
+python fetch_data_v2.py --github-days 7 --hn-days 14 --verbose
+
+# 指定输出路径
+python fetch_data_v2.py -o /path/to/output.json
 ```
 
-### 2. 安装依赖
+采集内容：
+- GitHub Issues（最近3天，热度>30）
+- 高质量评论（10-20条/issue）
+- HN 讨论（最近7天，热度>70）
+- 版本信息
 
+输出：
+- `.meta/cache/daily_data.json`
+- `ainews.db`（SQLite数据库）
+
+---
+
+### 数据库管理
+
+**db-stats.sh** - 查看数据库统计
 ```bash
-pip install requests beautifulsoup4 python-dateutil
+./db-stats.sh
 ```
 
-## 使用方法
+显示：
+- 总体统计（Issues、评论、讨论数）
+- Top 10 热门 Issues
+- 最新数据时间
+- 数据库大小
 
-### 基本用法
+**db-cleanup.sh** - 清理旧数据
+```bash
+# 清理30天前的数据（默认）
+./db-cleanup.sh
 
+# 清理60天前的数据
+./db-cleanup.sh 60
+```
+
+清理：
+- Issues
+- 评论
+- HN 讨论
+- 执行 VACUUM 优化数据库
+
+**db_manager.py** - Python数据库管理模块
+```python
+from db_manager import DatabaseManager
+
+db = DatabaseManager()
+db.insert_issue(issue_data)
+db.get_issue_trend(issue_number, days=7)
+db.cleanup_old_data(days=30)
+```
+
+---
+
+### 报告查看
+
+**view-latest.sh** - 查看最新报告
+```bash
+./view-latest.sh
+```
+
+显示：
+- 报告统计（行数、字数、大小）
+- 完整报告内容
+- 快捷命令提示
+
+**view-data.sh** - 查看缓存数据
+```bash
+./view-data.sh
+```
+
+显示：
+- 缓存文件信息
+- 数据摘要（需要 jq）
+- 热门 Issues 列表
+
+---
+
+### 快捷脚本
+
+**quick-report.sh** - 快速生成报告
+```bash
+./quick-report.sh
+```
+
+流程：
+1. 激活虚拟环境
+2. 运行数据采集
+3. 提示运行 AI 分析
+4. 显示最新报告信息
+
+---
+
+### 自动化（已废弃）
+
+**daily-ccnews.sh** - 自动化脚本（v2.1旧版）
+
+⚠️ 此脚本为旧版本，不适用于当前 v3.0 架构。
+建议使用 `quick-report.sh` 代替。
+
+---
+
+## 🔧 开发工具
+
+### 数据库操作
+```bash
+# 连接数据库
+sqlite3 ../../ainews.db
+
+# 查询示例
+sqlite> SELECT COUNT(*) FROM issues;
+sqlite> SELECT * FROM issues WHERE issue_number=8763;
+sqlite> SELECT * FROM issues ORDER BY heat_score DESC LIMIT 10;
+```
+
+### Python环境
 ```bash
 # 激活虚拟环境
-source venv/bin/activate
+source ../venv/bin/activate
 
-# 运行脚本（使用默认设置）
-python scripts/fetch_data.py
+# 安装依赖
+pip install -r ../requirements.txt
+
+# 测试数据库
+python -c "from db_manager import DatabaseManager; db = DatabaseManager(); print('✅ OK')"
 ```
 
-### 自定义参数
+---
 
+## 📊 工作流程
+
+### 完整流程
 ```bash
-# 指定输出路径
-python scripts/fetch_data.py --output /path/to/output.json
+# 1. 采集数据
+./quick-report.sh
 
-# 调整回溯天数
-python scripts/fetch_data.py --github-days 7 --hn-days 14
+# 2. 在 Claude Code 中运行
+/ccnews
 
-# 显示详细日志
-python scripts/fetch_data.py --verbose
+# 3. 查看报告
+./view-latest.sh
+
+# 4. 查看数据库统计
+./db-stats.sh
 ```
 
-### 参数说明
-
-| 参数 | 短参数 | 说明 | 默认值 |
-|------|--------|------|--------|
-| `--output` | `-o` | 输出文件路径 | `cc/cache/daily_data.json` |
-| `--github-days` | - | GitHub Issues 回溯天数 | 3 |
-| `--hn-days` | - | HN 讨论回溯天数 | 7 |
-| `--verbose` | `-v` | 显示详细日志 | False |
-
-## 输出数据格式
-
-脚本生成的 JSON 文件包含以下结构：
-
-```json
-{
-  "metadata": {
-    "timestamp": "2025-10-14T10:00:00Z",
-    "date": "2025-10-14",
-    "version": "1.0"
-  },
-  "version": {
-    "current": "v2.0.14",
-    "release_date": "2025-10-11",
-    "is_new": false
-  },
-  "issues": [
-    {
-      "number": 5037,
-      "title": "...",
-      "url": "...",
-      "comments": 12,
-      "reactions": 11,
-      "heat_score": 61.5,
-      "labels": ["bug", "has repro"],
-      "created_at": "2025-08-03T11:02:21Z"
-    }
-  ],
-  "discussions": [...],
-  "articles": [...]
-}
-```
-
-详细的数据结构定义见 `cc/schemas/daily_data.schema.json`
-
-## 热度评分算法
-
-### GitHub Issues
-
-```
-heat_score = (评论数 × 2) + (反应数 × 1.5) + 时间加成 + 标签加成
-```
-
-- 时间加成：24小时内 +20，72小时内 +10
-- 标签加成：bug +5，feature +3，priority-high +10
-
-### HN 讨论
-
-```
-heat_score = (分数 × 1.5) + (评论数 × 2) + 时间加成 + 相关性加成
-```
-
-- 时间加成：1天内 +30，3天内 +15，7天内 +5
-- 相关性加成：tutorial/guide +10，case study/production +15
-
-### 文章质量
-
-```
-quality_score = 新鲜度(40) + 分类(30) + 关键词(20) + 长度(10)
-```
-
-详细算法文档见 `cc/docs/heat-algorithm.md`
-
-## 筛选规则
-
-| 类型 | 筛选标准 | 最大数量 |
-|------|----------|----------|
-| GitHub Issues | heat_score ≥ 20 | 5 个 |
-| HN 讨论 | heat_score ≥ 50 | 3 个 |
-| 社区文章 | quality_score ≥ 70 | 2 篇 |
-
-## 性能指标
-
-- **执行时间**: 5-10 秒
-- **API 调用**: 4-6 次
-- **成功率**: > 95%
-
-## 故障排除
-
-### 问题：requests 模块未找到
-
+### 维护流程
 ```bash
-# 确保虚拟环境已激活
-source venv/bin/activate
-pip install requests beautifulsoup4 python-dateutil
+# 每周清理
+./db-cleanup.sh 30
+
+# 检查数据
+./db-stats.sh
+./view-data.sh
 ```
 
-### 问题：GitHub API rate limit
+---
 
-未认证的 GitHub API 限制为 60 次/小时，足够日常使用。如需更高限制，可以：
+## ⚡ 性能优化
 
-1. 创建 GitHub Personal Access Token
-2. 在脚本中添加认证头：`headers={'Authorization': 'token YOUR_TOKEN'}`
+### 数据采集优化
+- 默认3天GitHub Issues（可调整为7天）
+- 默认7天HN讨论（可调整为14天）
+- 自动重试失败请求（3次）
+- 并发评论抓取
 
-### 问题：文章数量为 0
+### 数据库优化
+- 定期 VACUUM（db-cleanup.sh 自动执行）
+- 索引优化（自动创建）
+- 定期清理旧数据（建议30天）
 
-这是正常的！脚本使用严格的质量评分（≥70分）筛选文章。如果没有符合标准的文章，输出为空是预期行为。
+---
 
-可以通过以下方式调整：
+## 🐛 故障排除
 
-```python
-# 在 fetch_data.py 中修改
-Config.ARTICLE_QUALITY_THRESHOLD = 50  # 降低阈值
-```
-
-### 问题：网络请求超时
-
-脚本内置了重试机制（最多3次）。如果网络不稳定：
-
-```python
-# 在 fetch_data.py 中修改
-Config.REQUEST_TIMEOUT = 30  # 增加超时时间（秒）
-```
-
-## 定时任务（可选）
-
-使用 cron 定时运行脚本：
-
+### 数据采集失败
+**问题**: GitHub API rate limit
 ```bash
-# 编辑 crontab
-crontab -e
+# 检查限制
+curl -s https://api.github.com/rate_limit
 
-# 添加定时任务（每天早上 9 点运行）
-0 9 * * * cd /Users/shenbo/Desktop/mind/cc && source venv/bin/activate && python scripts/fetch_data.py
+# 等待1小时或设置 GitHub token
 ```
 
-## 开发说明
-
-### 目录结构
-
-```
-cc/
-├── scripts/
-│   ├── fetch_data.py           # 主脚本
-│   └── README.md               # 本文档
-├── cache/
-│   └── daily_data.json         # 输出数据
-├── schemas/
-│   ├── daily_data.schema.json  # 数据结构定义
-│   └── daily_data.example.json # 示例数据
-├── docs/
-│   └── heat-algorithm.md       # 算法文档
-└── venv/                       # 虚拟环境
+### Python环境问题
+**问题**: ModuleNotFoundError
+```bash
+# 重建虚拟环境
+rm -rf ../venv
+python3 -m venv ../venv
+source ../venv/bin/activate
+pip install -r ../requirements.txt
 ```
 
-### 修改配置
-
-在 `fetch_data.py` 的 `Config` 类中修改默认值：
-
-```python
-class Config:
-    # 修改阈值
-    ISSUE_HEAT_THRESHOLD = 15  # 默认 20
-    HN_HEAT_THRESHOLD = 40     # 默认 50
-
-    # 修改数量限制
-    MAX_ISSUES = 10            # 默认 5
-    MAX_DISCUSSIONS = 5        # 默认 3
+### 数据库锁定
+**问题**: database is locked
+```bash
+# 关闭所有 sqlite3 连接
+# 删除锁文件
+rm ../../ainews.db-journal
+rm ../../ainews.db-shm
+rm ../../ainews.db-wal
 ```
 
-### 扩展数据源
+---
 
-要添加新的数据源，参考现有的 `fetch_xxx()` 函数：
+## 📝 脚本参数
 
-```python
-def fetch_new_source() -> List[Dict]:
-    """获取新数据源"""
-    # 1. 发送请求
-    # 2. 解析数据
-    # 3. 计算评分
-    # 4. 筛选和排序
-    return results
+### fetch_data_v2.py
+```
+--output, -o          输出文件路径
+--github-days         GitHub Issues 回溯天数（默认3）
+--hn-days             HN 讨论回溯天数（默认7）
+--verbose, -v         显示详细日志
 ```
 
-## 版本历史
+### db-cleanup.sh
+```
+参数1: 保留天数（默认30）
+```
 
-- **v1.0** (2025-10-14)
-  - 初始版本
-  - 支持 GitHub Issues、HN 讨论、社区文章、版本检测
-  - 实现热度评分算法
-  - 完善错误处理机制
+---
 
-## 许可证
+## 🔗 相关文档
 
-本脚本是 ccnews 优化项目的一部分，供个人使用。
+- [README.md](../../README.md) - 项目总览
+- [STRUCTURE.md](../../STRUCTURE.md) - 目录结构
+- [ccnews-analyst.md](../../../.claude/agents/ccnews-analyst.md) - AI分析规范
 
-## 支持
+---
 
-如有问题，请参考：
-- 技术可行性报告：`cc/research/api-feasibility.md`
-- 热度算法文档：`cc/docs/heat-algorithm.md`
-- 数据结构定义：`cc/schemas/daily_data.schema.json`
+📅 最后更新：2025-10-16
+🤖 Claude Code News System v3.0

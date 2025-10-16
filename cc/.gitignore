@@ -1,0 +1,58 @@
+# Python
+.meta/venv/
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+
+# Virtual Environment
+env/
+venv/
+ENV/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+*.bak
+
+# Logs
+*.log
+.meta/logs/
+
+# Database
+*.db-journal
+*.db-shm
+*.db-wal
+
+# Temporary files
+*.tmp
+.temp/
+tmp/
+
+# Cache (keep the directory structure but ignore large cache files)
+.meta/cache/*.json.bak
+.meta/cache/temp_*
+
+# Secrets and credentials
+.env
+.env.local
+secrets.json
+credentials.json
+
+# Build artifacts
+dist/
+build/
+*.egg-info/
+
+# Reports backup (keep current reports, ignore backups)
+**/index_new.md
+**/index_old.md
+**/*_backup.md
