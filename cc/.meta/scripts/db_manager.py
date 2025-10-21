@@ -10,7 +10,7 @@ SQLite 数据库管理器
 
 使用：
     from db_manager import DatabaseManager
-    db = DatabaseManager("ainews.db")
+    db = DatabaseManager("ccnews.db")
     db.insert_issue(issue_data)
 """
 
@@ -26,7 +26,7 @@ logger = logging.getLogger(__name__)
 class DatabaseManager:
     """SQLite 数据库管理器"""
 
-    def __init__(self, db_path: str = "/Users/shenbo/Desktop/mind/cc/ainews.db"):
+    def __init__(self, db_path: str = "/Users/shenbo/Desktop/mind/cc/ccnews.db"):
         """初始化数据库连接"""
         self.db_path = db_path
         self.conn = sqlite3.connect(db_path)
@@ -131,6 +131,77 @@ class DatabaseManager:
         )
         """)
 
+        # Reddit 帖子表
+        self.cursor.execute("""
+        CREATE TABLE IF NOT EXISTS reddit_posts (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            post_id TEXT UNIQUE NOT NULL,
+            subreddit TEXT NOT NULL,
+            title TEXT NOT NULL,
+            selftext TEXT,
+            author TEXT,
+            score INTEGER DEFAULT 0,
+            num_comments INTEGER DEFAULT 0,
+            upvote_ratio REAL DEFAULT 0,
+            heat_score REAL DEFAULT 0,
+            url TEXT,
+            created_at TIMESTAMP,
+            fetched_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        )
+        """)
+
+        # Reddit 评论表
+        self.cursor.execute("""
+        CREATE TABLE IF NOT EXISTS reddit_comments (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            post_id TEXT NOT NULL,
+            comment_id TEXT UNIQUE NOT NULL,
+            author TEXT,
+            body TEXT,
+            score INTEGER DEFAULT 0,
+            quality_score REAL DEFAULT 0,
+            is_solution BOOLEAN DEFAULT 0,
+            created_at TIMESTAMP,
+            fetched_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            FOREIGN KEY (post_id) REFERENCES reddit_posts(post_id)
+        )
+        """)
+
+        # AI 新闻文章表
+        self.cursor.execute("""
+        CREATE TABLE IF NOT EXISTS ai_news (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            article_id TEXT UNIQUE NOT NULL,
+            source TEXT NOT NULL,
+            title TEXT NOT NULL,
+            summary TEXT,
+            content TEXT,
+            url TEXT NOT NULL,
+            author TEXT,
+            published_at TIMESTAMP,
+            heat_score REAL DEFAULT 0,
+            category TEXT,
+            tags TEXT,
+            fetched_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        )
+        """)
+
+        # 产品更新表
+        self.cursor.execute("""
+        CREATE TABLE IF NOT EXISTS product_updates (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            product TEXT NOT NULL,
+            update_type TEXT,
+            title TEXT NOT NULL,
+            description TEXT,
+            version TEXT,
+            url TEXT,
+            impact_score REAL DEFAULT 0,
+            published_at TIMESTAMP,
+            fetched_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        )
+        """)
+
         # 创建索引
         self.cursor.execute(
             "CREATE INDEX IF NOT EXISTS idx_issue_number ON issues(issue_number)"
@@ -140,6 +211,21 @@ class DatabaseManager:
         )
         self.cursor.execute(
             "CREATE INDEX IF NOT EXISTS idx_comment_issue ON issue_comments(issue_number)"
+        )
+        self.cursor.execute(
+            "CREATE INDEX IF NOT EXISTS idx_reddit_subreddit ON reddit_posts(subreddit)"
+        )
+        self.cursor.execute(
+            "CREATE INDEX IF NOT EXISTS idx_reddit_score ON reddit_posts(score DESC)"
+        )
+        self.cursor.execute(
+            "CREATE INDEX IF NOT EXISTS idx_news_source ON ai_news(source)"
+        )
+        self.cursor.execute(
+            "CREATE INDEX IF NOT EXISTS idx_news_category ON ai_news(category)"
+        )
+        self.cursor.execute(
+            "CREATE INDEX IF NOT EXISTS idx_product ON product_updates(product)"
         )
 
         self.conn.commit()
@@ -375,8 +461,194 @@ class DatabaseManager:
         DELETE FROM hn_discussions WHERE fetched_at < ?
         """, (cutoff_date,))
 
+        # 删除旧 Reddit 帖子
+        self.cursor.execute("""
+        DELETE FROM reddit_posts WHERE fetched_at < ?
+        """, (cutoff_date,))
+
+        # 删除旧 AI 新闻
+        self.cursor.execute("""
+        DELETE FROM ai_news WHERE fetched_at < ?
+        """, (cutoff_date,))
+
         self.conn.commit()
         logger.info(f"已清理 {days} 天前的旧数据")
+
+    # ========================================================================
+    # Reddit 相关操作
+    # ========================================================================
+
+    def insert_reddit_post(self, post_data: Dict) -> int:
+        """插入 Reddit 帖子"""
+        try:
+            self.cursor.execute("""
+            INSERT OR REPLACE INTO reddit_posts (
+                post_id, subreddit, title, selftext, author, score,
+                num_comments, upvote_ratio, heat_score, url, created_at
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            """, (
+                post_data['post_id'],
+                post_data['subreddit'],
+                post_data['title'],
+                post_data.get('selftext', ''),
+                post_data.get('author', ''),
+                post_data['score'],
+                post_data['num_comments'],
+                post_data.get('upvote_ratio', 0),
+                post_data['heat_score'],
+                post_data.get('url', ''),
+                post_data.get('created_at', '')
+            ))
+
+            self.conn.commit()
+            return self.cursor.lastrowid
+
+        except Exception as e:
+            logger.error(f"插入 Reddit 帖子失败: {e}")
+            return -1
+
+    def insert_reddit_comment(self, post_id: str, comment_data: Dict) -> int:
+        """插入 Reddit 评论"""
+        try:
+            self.cursor.execute("""
+            INSERT OR REPLACE INTO reddit_comments (
+                post_id, comment_id, author, body, score,
+                quality_score, is_solution, created_at
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+            """, (
+                post_id,
+                comment_data['comment_id'],
+                comment_data.get('author', ''),
+                comment_data['body'],
+                comment_data.get('score', 0),
+                comment_data.get('quality_score', 0),
+                comment_data.get('is_solution', False),
+                comment_data.get('created_at', '')
+            ))
+
+            self.conn.commit()
+            return self.cursor.lastrowid
+
+        except Exception as e:
+            logger.error(f"插入 Reddit 评论失败: {e}")
+            return -1
+
+    def get_reddit_top_posts(self, subreddit: str = None, limit: int = 10) -> List[Dict]:
+        """获取热门 Reddit 帖子"""
+        if subreddit:
+            self.cursor.execute("""
+            SELECT * FROM reddit_posts
+            WHERE subreddit = ?
+            ORDER BY heat_score DESC
+            LIMIT ?
+            """, (subreddit, limit))
+        else:
+            self.cursor.execute("""
+            SELECT * FROM reddit_posts
+            ORDER BY heat_score DESC
+            LIMIT ?
+            """, (limit,))
+
+        return [dict(row) for row in self.cursor.fetchall()]
+
+    # ========================================================================
+    # AI News 相关操作
+    # ========================================================================
+
+    def insert_ai_news(self, news_data: Dict) -> int:
+        """插入 AI 新闻"""
+        try:
+            self.cursor.execute("""
+            INSERT OR REPLACE INTO ai_news (
+                article_id, source, title, summary, content, url,
+                author, published_at, heat_score, category, tags
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            """, (
+                news_data['article_id'],
+                news_data['source'],
+                news_data['title'],
+                news_data.get('summary', ''),
+                news_data.get('content', ''),
+                news_data['url'],
+                news_data.get('author', ''),
+                news_data.get('published_at', ''),
+                news_data.get('heat_score', 0),
+                news_data.get('category', ''),
+                json.dumps(news_data.get('tags', []))
+            ))
+
+            self.conn.commit()
+            return self.cursor.lastrowid
+
+        except Exception as e:
+            logger.error(f"插入 AI 新闻失败: {e}")
+            return -1
+
+    def get_recent_ai_news(self, source: str = None, limit: int = 10) -> List[Dict]:
+        """获取最新 AI 新闻"""
+        if source:
+            self.cursor.execute("""
+            SELECT * FROM ai_news
+            WHERE source = ?
+            ORDER BY published_at DESC
+            LIMIT ?
+            """, (source, limit))
+        else:
+            self.cursor.execute("""
+            SELECT * FROM ai_news
+            ORDER BY published_at DESC
+            LIMIT ?
+            """, (limit,))
+
+        return [dict(row) for row in self.cursor.fetchall()]
+
+    # ========================================================================
+    # Product Updates 相关操作
+    # ========================================================================
+
+    def insert_product_update(self, update_data: Dict) -> int:
+        """插入产品更新"""
+        try:
+            self.cursor.execute("""
+            INSERT INTO product_updates (
+                product, update_type, title, description, version,
+                url, impact_score, published_at
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+            """, (
+                update_data['product'],
+                update_data.get('update_type', ''),
+                update_data['title'],
+                update_data.get('description', ''),
+                update_data.get('version', ''),
+                update_data.get('url', ''),
+                update_data.get('impact_score', 0),
+                update_data.get('published_at', '')
+            ))
+
+            self.conn.commit()
+            return self.cursor.lastrowid
+
+        except Exception as e:
+            logger.error(f"插入产品更新失败: {e}")
+            return -1
+
+    def get_product_updates(self, product: str = None, limit: int = 10) -> List[Dict]:
+        """获取产品更新记录"""
+        if product:
+            self.cursor.execute("""
+            SELECT * FROM product_updates
+            WHERE product = ?
+            ORDER BY published_at DESC
+            LIMIT ?
+            """, (product, limit))
+        else:
+            self.cursor.execute("""
+            SELECT * FROM product_updates
+            ORDER BY published_at DESC
+            LIMIT ?
+            """, (limit,))
+
+        return [dict(row) for row in self.cursor.fetchall()]
 
     def __del__(self):
         """关闭数据库连接"""

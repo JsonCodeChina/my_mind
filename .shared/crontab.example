@@ -1,0 +1,19 @@
+# Mind 项目自动化定时任务配置
+# 使用方法：crontab -e，然后复制以下内容
+
+# 环境变量
+SHELL=/bin/bash
+PATH=/usr/local/bin:/usr/bin:/bin
+HOME=/Users/shenbo
+
+# 每天早上 8:00 生成 Claude Code 日报
+0 8 * * * /Users/shenbo/Desktop/mind/.shared/scheduler.sh ccnews >> /Users/shenbo/Desktop/mind/.shared/logs/cron.log 2>&1
+
+# 每天早上 9:00 生成 AI 全景报告
+0 9 * * * /Users/shenbo/Desktop/mind/.shared/scheduler.sh ainews >> /Users/shenbo/Desktop/mind/.shared/logs/cron.log 2>&1
+
+# 每周日凌晨 2:00 清理旧报告
+0 2 * * 0 /Users/shenbo/Desktop/mind/.shared/scheduler.sh cleanup >> /Users/shenbo/Desktop/mind/.shared/logs/cron.log 2>&1
+
+# 每月1号凌晨 3:00 清理数据库
+0 3 1 * * cd /Users/shenbo/Desktop/mind/cc && source .meta/venv/bin/activate && python .meta/scripts/db_manager.py cleanup --days 30 >> /Users/shenbo/Desktop/mind/.shared/logs/cron.log 2>&1

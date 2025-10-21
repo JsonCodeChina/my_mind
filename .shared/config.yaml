@@ -1,0 +1,71 @@
+# Mind Project - 全局配置
+project:
+  name: "Mind - AI 技术追踪"
+  root: "/Users/shenbo/Desktop/mind"
+
+# Claude Code 模块配置
+ccnews:
+  github:
+    repo: "anthropics/claude-code"
+    lookback_days: 3
+    heat_threshold: 30
+    max_issues: 3
+
+  hn:
+    keywords: ["Claude Code"]
+    lookback_days: 7
+    heat_threshold: 70
+    max_discussions: 2
+
+  database:
+    path: "cc/ccnews.db"
+
+  cache:
+    path: "cc/.meta/cache/daily_data.json"
+
+  reports:
+    path: "cc/{date}/index.md"
+    target_lines: 100
+    range: [80, 120]
+
+# AI 全景模块配置
+ainews:
+  sources:
+    - name: "LMSYS Arena"
+      url: "https://chat.lmsys.org/"
+      type: "leaderboard"
+
+    - name: "Hacker News"
+      url: "https://news.ycombinator.com/"
+      keywords: ["AI", "LLM", "GPT", "Claude", "Gemini"]
+      min_points: 50
+
+    - name: "Reddit"
+      subreddits: ["artificial", "LocalLLaMA"]
+      min_upvotes: 100
+
+    - name: "Anthropic Blog"
+      url: "https://www.anthropic.com/news"
+
+    - name: "OpenAI Blog"
+      url: "https://openai.com/blog"
+
+  cache:
+    path: "ainews/.meta/cache/ai_data.json"
+
+  reports:
+    path: "ainews/{date}/index.md"
+    target_lines: 100
+    range: [80, 120]
+
+# 工具配置
+tools:
+  request_timeout: 10
+  max_retries: 3
+  user_agent: "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36"
+
+# 归档配置
+archive:
+  enabled: true
+  keep_days: 30
+  archive_path: "{module}/archive/{year}-{month}/"

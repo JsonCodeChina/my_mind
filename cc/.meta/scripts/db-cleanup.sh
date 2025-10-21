@@ -4,7 +4,7 @@
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 CC_DIR="$(cd "$SCRIPT_DIR/../.." && pwd)"
-DB_FILE="$CC_DIR/ainews.db"
+DB_FILE="$CC_DIR/ccnews.db"
 
 # 默认保留30天
 DAYS=${1:-30}

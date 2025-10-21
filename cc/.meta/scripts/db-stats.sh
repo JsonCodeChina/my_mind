@@ -4,7 +4,7 @@
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 CC_DIR="$(cd "$SCRIPT_DIR/../.." && pwd)"
-DB_FILE="$CC_DIR/ainews.db"
+DB_FILE="$CC_DIR/ccnews.db"
 
 echo "=========================================="
 echo "数据库统计信息"
