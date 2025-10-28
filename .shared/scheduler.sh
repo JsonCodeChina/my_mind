@@ -41,6 +41,20 @@ run_ccnews() {
     # 这里需要调用 Claude Code CLI
     # claude --prompt "$(cat .claude/commands/ccnews.md)"
 
+    # 3. 发送邮件（如果启用）
+    REPORT_PATH="$PROJECT_ROOT/cc/$DATE/index.md"
+    if [ -f "$REPORT_PATH" ]; then
+        log_info "  → 发送邮件通知..."
+        cd "$PROJECT_ROOT/.shared"
+        if python email_sender.py --report "$REPORT_PATH" --type ccnews 2>&1 | tee -a "$LOG_DIR/email.log"; then
+            log_info "  ✓ 邮件发送成功"
+        else
+            log_info "  ⚠ 邮件发送失败或未启用（查看日志: $LOG_DIR/email.log）"
+        fi
+    else
+        log_info "  ⚠ 报告文件不存在，跳过邮件发送: $REPORT_PATH"
+    fi
+
     log_info "✓ Claude Code 日报生成完成"
 }
 
@@ -54,6 +68,20 @@ run_ainews() {
 
     log_info "  → 生成报告中..."
     # claude --prompt "$(cat .claude/commands/ainews.md)"
+
+    # 发送邮件（如果启用）
+    REPORT_PATH="$PROJECT_ROOT/ainews/$DATE/index.md"
+    if [ -f "$REPORT_PATH" ]; then
+        log_info "  → 发送邮件通知..."
+        cd "$PROJECT_ROOT/.shared"
+        if python email_sender.py --report "$REPORT_PATH" --type ainews 2>&1 | tee -a "$LOG_DIR/email.log"; then
+            log_info "  ✓ 邮件发送成功"
+        else
+            log_info "  ⚠ 邮件发送失败或未启用（查看日志: $LOG_DIR/email.log）"
+        fi
+    else
+        log_info "  ⚠ 报告文件不存在，跳过邮件发送: $REPORT_PATH"
+    fi
 
     log_info "✓ AI 全景报告生成完成"
 }

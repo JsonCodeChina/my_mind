@@ -19,9 +19,9 @@ import os
 from datetime import datetime, timezone
 from typing import Dict, List
 
-# 复用现有模块
-sys.path.insert(0, os.path.dirname(__file__))
-from fetch_data_v2 import (
+# 使用共享模块
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', '..', '.shared', 'utils'))
+from data_fetcher import (
     Config, make_request, calculate_issue_heat_score,
     calculate_hn_heat_score, CommentFetcher, fetch_version_info
 )
@@ -262,8 +262,7 @@ def main():
         discussions = fetch_hn_multi_keywords(HN_KEYWORDS, lookback_days=3)
     else:
         # 默认只抓取 Claude Code
-        from fetch_data_v2 import fetch_hn_discussions
-        discussions = fetch_hn_discussions(7, db)
+        discussions = fetch_hn_multi_keywords(['Claude Code'], lookback_days=7)
 
     # 3. 抓取模型排名
     rankings = []
@@ -271,7 +270,8 @@ def main():
         rankings = fetch_lmsys_rankings()
 
     # 4. 版本信息
-    version = fetch_version_info(db)
+    CHANGELOG_URL = "https://claudelog.com/claude-code-changelog/"
+    version = fetch_version_info(CHANGELOG_URL)
 
     # 构建输出
     output_data = {

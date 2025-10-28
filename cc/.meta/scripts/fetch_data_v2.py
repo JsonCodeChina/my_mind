@@ -27,7 +27,7 @@ from typing import Dict, List, Optional
 from urllib.parse import urljoin
 
 # 导入数据库管理器
-sys.path.insert(0, os.path.dirname(__file__))
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), '../../..', '.shared/utils'))
 from db_manager import DatabaseManager, predict_resolution_time
 
 try:
