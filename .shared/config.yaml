@@ -72,7 +72,7 @@ archive:
 
 # 邮件推送配置
 email:
-  enabled: false  # 设置为 true 启用邮件推送
+  enabled: true  # 设置为 true 启用邮件推送
 
   # SMTP 服务器配置（请根据你的邮箱服务商配置）
   smtp:
@@ -81,20 +81,20 @@ email:
     # QQ邮箱: smtp.qq.com, 587
     # 163邮箱: smtp.163.com, 465
     # Outlook: smtp-mail.outlook.com, 587
-    host: "smtp.example.com"  # SMTP 服务器地址
+    host: "smtp.qq.com"       # SMTP 服务器地址
     port: 587                  # SMTP 端口（587=TLS, 465=SSL）
     use_tls: true             # 是否使用 TLS
     use_ssl: false            # 是否使用 SSL（与 TLS 二选一）
 
   # 发件人信息（需要配置）
   sender:
-    email: "your-email@example.com"     # 发件人邮箱
+    email: "1019226626@qq.com"          # 发件人邮箱
     password: ""                         # 邮箱密码或应用专用密码（建议使用环境变量）
     name: "Mind AI Report"              # 发件人显示名称
 
   # 收件人列表
   recipients:
-    - "your-email@example.com"          # 可以添加多个收件人
+    - "1019226626@qq.com"               # 可以添加多个收件人
 
   # 邮件内容配置
   content:

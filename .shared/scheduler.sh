@@ -8,6 +8,11 @@ PROJECT_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 LOG_DIR="$PROJECT_ROOT/.shared/logs"
 mkdir -p "$LOG_DIR"
 
+# 加载环境变量
+if [ -f "$PROJECT_ROOT/.shared/.env" ]; then
+    export $(grep -v '^#' "$PROJECT_ROOT/.shared/.env" | xargs)
+fi
+
 TIMESTAMP=$(date +"%Y-%m-%d %H:%M:%S")
 DATE=$(date +"%Y-%m-%d")
 
@@ -45,8 +50,8 @@ run_ccnews() {
     REPORT_PATH="$PROJECT_ROOT/cc/$DATE/index.md"
     if [ -f "$REPORT_PATH" ]; then
         log_info "  → 发送邮件通知..."
-        cd "$PROJECT_ROOT/.shared"
-        if python email_sender.py --report "$REPORT_PATH" --type ccnews 2>&1 | tee -a "$LOG_DIR/email.log"; then
+        cd "$PROJECT_ROOT"
+        if python3 .shared/email_sender.py --report "$REPORT_PATH" --type ccnews 2>&1 | tee -a "$LOG_DIR/email.log"; then
             log_info "  ✓ 邮件发送成功"
         else
             log_info "  ⚠ 邮件发送失败或未启用（查看日志: $LOG_DIR/email.log）"
@@ -73,8 +78,8 @@ run_ainews() {
     REPORT_PATH="$PROJECT_ROOT/ainews/$DATE/index.md"
     if [ -f "$REPORT_PATH" ]; then
         log_info "  → 发送邮件通知..."
-        cd "$PROJECT_ROOT/.shared"
-        if python email_sender.py --report "$REPORT_PATH" --type ainews 2>&1 | tee -a "$LOG_DIR/email.log"; then
+        cd "$PROJECT_ROOT"
+        if python3 .shared/email_sender.py --report "$REPORT_PATH" --type ainews 2>&1 | tee -a "$LOG_DIR/email.log"; then
             log_info "  ✓ 邮件发送成功"
         else
             log_info "  ⚠ 邮件发送失败或未启用（查看日志: $LOG_DIR/email.log）"

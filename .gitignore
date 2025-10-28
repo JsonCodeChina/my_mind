@@ -43,6 +43,10 @@ logs/
 cache/
 *.log
 
+# Environment variables (contains sensitive data)
+.env
+.shared/.env
+
 # Temporary files
 *.tmp
 *.bak
